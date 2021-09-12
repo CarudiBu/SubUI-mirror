@@ -172,8 +172,8 @@ class MirrorService: Service() {
 
             builder.setContentTitle(StringBuilder(resources.getString(R.string.app_name)).append(" service is running").toString())
                 .setTicker(StringBuilder(resources.getString(R.string.app_name)).append("service is running").toString())
-                .setContentText("Touch to open") //                    , swipe down for more options.
-                .setSmallIcon(R.drawable.ic_photo_black_48dp)
+                .setContentText("Touch to open")
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setWhen(0)
                 .setOnlyAlertOnce(true)

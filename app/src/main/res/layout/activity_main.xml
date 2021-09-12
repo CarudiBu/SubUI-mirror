@@ -17,6 +17,7 @@
             android:id="@+id/warning"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="8dp"
             android:text="Warning! Mirroring has an impact on device performance and battery life. Please turn off when not in use." />
 
         <Space
@@ -27,6 +28,7 @@
             android:id="@+id/crop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="8dp"
             android:text="Crop cover screen image (requires service restart)" />
 
         <Space
@@ -42,7 +44,7 @@
                 android:id="@+id/start"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
+                android:layout_margin="8dp"
                 android:layout_marginEnd="4dp"
                 android:layout_weight="1"
                 android:text="Start" />
@@ -51,8 +53,7 @@
                 android:id="@+id/stop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
+                android:layout_marginHorizontal="8dp"
                 android:layout_weight="1"
                 android:text="Stop" />
         </LinearLayout>
