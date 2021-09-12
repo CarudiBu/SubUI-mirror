@@ -39,11 +39,6 @@ class MirrorService: Service() {
     private var mProjectionManager: MediaProjectionManager? = null
     private var mScreenSharing = false
     private var mMediaProjection: MediaProjection? = null
-    private var mVirtualDisplay: Display? = null
-    private var mSurface: Surface? = null
-    private val mSurfaceView: SurfaceView? = null
-
-    private val mAttachedLcdSize: Point = Point()
     private var mPresentationDialog: Presentation? = null
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -80,14 +75,10 @@ class MirrorService: Service() {
             mPresentationDialog = null
         }
 
-        val metrics = DisplayMetrics()
-
-        mScreenDensity = metrics.densityDpi
         mProjectionManager =
             getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
 
         mScreenSharing = true
-
 
         Handler().postDelayed({
             mMediaProjection = mProjectionManager!!.getMediaProjection(
@@ -102,7 +93,6 @@ class MirrorService: Service() {
 
             surfaceView.scaleY = 1F * sf
             surfaceView.scaleX = 1F * sf
-
 
             mMediaProjection!!.createVirtualDisplay(
                 "cover",
@@ -145,49 +135,44 @@ class MirrorService: Service() {
     private var iconNotification: Bitmap? = null
     private var notification: Notification? = null
     var mNotificationManager: NotificationManager? = null
-    private val mNotificationId = 123
+    private val mNotificationId = 373
 
     private fun generateForegroundNotification() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val intentMainLanding = Intent(this, MainActivity::class.java)
-            val pendingIntent =
-                PendingIntent.getActivity(this, 0, intentMainLanding, 0)
-            iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher)
-            if (mNotificationManager == null) {
-                mNotificationManager = this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                assert(mNotificationManager != null)
-                mNotificationManager?.createNotificationChannelGroup(
-                    NotificationChannelGroup("chats_group", "Chats")
-                )
-                val notificationChannel =
-                    NotificationChannel("service_channel", "Service Notifications",
-                        NotificationManager.IMPORTANCE_MIN)
-                notificationChannel.enableLights(false)
-                notificationChannel.lockscreenVisibility = Notification.VISIBILITY_SECRET
-                mNotificationManager?.createNotificationChannel(notificationChannel)
-            }
-            val builder = NotificationCompat.Builder(this, "service_channel")
-
-            builder.setContentTitle(StringBuilder(resources.getString(R.string.app_name)).append(" service is running").toString())
-                .setTicker(StringBuilder(resources.getString(R.string.app_name)).append("service is running").toString())
-                .setContentText("Touch to open")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setWhen(0)
-                .setOnlyAlertOnce(true)
-                .setContentIntent(pendingIntent)
-                .setOngoing(true)
-            if (iconNotification != null) {
-                builder.setLargeIcon(Bitmap.createScaledBitmap(iconNotification!!, 128, 128, false))
-            }
-            builder.color = resources.getColor(R.color.purple_200)
-            notification = builder.build()
-            startForeground(mNotificationId, notification)
+        val intentMainLanding = Intent(this, MainActivity::class.java)
+        val pendingIntent =
+            PendingIntent.getActivity(this, 0, intentMainLanding, 0)
+        iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher)
+        if (mNotificationManager == null) {
+            mNotificationManager = this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         }
+        assert(mNotificationManager != null)
+        mNotificationManager?.createNotificationChannelGroup(
+            NotificationChannelGroup("chats_group", "Chats")
+        )
+        val notificationChannel =
+            NotificationChannel("service_channel", "Service Notifications",
+                NotificationManager.IMPORTANCE_MIN)
+        notificationChannel.enableLights(false)
+        notificationChannel.lockscreenVisibility = Notification.VISIBILITY_SECRET
+        mNotificationManager?.createNotificationChannel(notificationChannel)
+        val builder = NotificationCompat.Builder(this, "service_channel")
+
+        builder.setContentTitle(StringBuilder(resources.getString(R.string.app_name)).append(" service is running").toString())
+            .setTicker(StringBuilder(resources.getString(R.string.app_name)).append("service is running").toString())
+            .setContentText("Touch to open")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setWhen(0)
+            .setOnlyAlertOnce(true)
+            .setContentIntent(pendingIntent)
+            .setOngoing(true)
+        if (iconNotification != null) {
+            builder.setLargeIcon(Bitmap.createScaledBitmap(iconNotification!!, 128, 128, false))
+        }
+        builder.color = resources.getColor(R.color.purple_200)
+        notification = builder.build()
+        startForeground(mNotificationId, notification)
 
     }
-
 
 }
