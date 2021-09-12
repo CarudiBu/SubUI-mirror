@@ -1,28 +1,83 @@
 package com.carudibu.android.subuimirror
 
+import android.app.Activity
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-
 import android.content.DialogInterface
-
 import android.app.Presentation
 import android.graphics.Point
 import android.hardware.display.DisplayManager
 import android.util.Log
-import android.view.WindowManager.InvalidDisplayException
 import java.lang.Exception
 import java.lang.reflect.Field
 import android.view.*
+import android.content.Intent
+import android.app.ActivityOptions
+import android.content.Context
+import android.util.DisplayMetrics
+
+import android.media.projection.MediaProjection
+
+import android.print.PrintAttributes.Resolution
+
+import android.media.projection.MediaProjectionManager
+
+import android.view.SurfaceView
+import android.hardware.display.VirtualDisplay
+import android.widget.*
 
 
 class MainActivity : AppCompatActivity() {
     private val mAttachedLcdSize: Point = Point()
     private var mPresentationDialog: Presentation? = null
 
+    private val PERMISSION_CODE = 1
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        findViewById<Button>(R.id.start).setOnClickListener {
+            var projectionManager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+
+            //startPresentation()
+            startActivityForResult(
+                projectionManager!!.createScreenCaptureIntent(),
+                PERMISSION_CODE);
+        }
+
+        findViewById<Button>(R.id.stop).setOnClickListener {
+            val serviceIntent = Intent(this, MirrorService::class.java)
+            stopService(serviceIntent)
+        }
+
+        findViewById<Switch>(R.id.crop).setOnCheckedChangeListener { buttonView, isChecked ->
+            val sharedPref = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE)
+            with (sharedPref.edit()) {
+                putBoolean("crop", isChecked)
+                apply()
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != PERMISSION_CODE) {
+            return
+        }
+        if (resultCode != RESULT_OK) {
+            Toast.makeText(this, "User denied screen sharing permission", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val serviceIntent = Intent(this, MirrorService::class.java)
+        serviceIntent.putExtra("data", data)
+        serviceIntent.putExtra("int", resultCode)
+        startService(serviceIntent)
+    }
+
+    private fun startPresentation() {
 
         Log.v("subuimirror", "connectSubLcd")
         val subDisplay: Display? = getSubDisplay()
@@ -39,11 +94,14 @@ class MainActivity : AppCompatActivity() {
         setWindowAttributes()
         try {
             mPresentationDialog!!.show()
-        } catch (unused: InvalidDisplayException) {
+        } catch (unused: WindowManager.InvalidDisplayException) {
             Log.w("subuimirror", "Display was removed")
             mPresentationDialog = null
         }
+    }
 
+    private fun stopPresentation(){
+        mPresentationDialog?.cancel()
     }
 
     private fun getSubDisplay(): Display? {

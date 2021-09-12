@@ -2,6 +2,8 @@ package com.carudibu.android.subuimirror;
 
 import android.app.Presentation;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.hardware.display.VirtualDisplay;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
