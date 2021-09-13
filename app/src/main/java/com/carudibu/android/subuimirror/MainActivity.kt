@@ -25,6 +25,7 @@ import android.media.projection.MediaProjectionManager
 import android.view.SurfaceView
 import android.hardware.display.VirtualDisplay
 import android.widget.*
+import com.google.android.material.switchmaterial.SwitchMaterial
 
 
 class MainActivity : AppCompatActivity() {
@@ -52,7 +53,7 @@ class MainActivity : AppCompatActivity() {
             stopService(serviceIntent)
         }
 
-        findViewById<Switch>(R.id.crop).setOnCheckedChangeListener { buttonView, isChecked ->
+        findViewById<SwitchMaterial>(R.id.crop).setOnCheckedChangeListener { buttonView, isChecked ->
             val sharedPref = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE)
             with (sharedPref.edit()) {
                 putBoolean("crop", isChecked)
