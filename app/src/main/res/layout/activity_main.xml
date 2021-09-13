@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:text="Warning! Mirroring has an impact on device performance and battery life. Please turn off when not in use." />
+            android:text="Warning! Mirroring has an impact on device performance and battery life. Please turn off when not in use. Cover screen will not work when phone is closed if mirroring is still running." />
 
         <Space
             android:layout_width="match_parent"
