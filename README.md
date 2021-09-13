@@ -15,6 +15,6 @@ The front cover screen won't work while the phone is closed if mirroring is stil
 ## WIP
 - [x] Basic mirroring
 - [ ] Touch mirroring
-- [ ] Auto-exit on phone quit
+- [ ] Auto-exit on phone closed
 - [ ] Improved resolution when cropping is on
 - [ ] Settings to control crop, tint, rotation and resolution
