@@ -4,8 +4,10 @@ import android.app.*
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.graphics.Point
 import android.hardware.display.DisplayManager
 import android.media.projection.MediaProjection
@@ -25,10 +27,10 @@ import android.view.animation.Animation
 
 import android.view.animation.RotateAnimation
 import android.widget.FrameLayout
+import android.view.WindowManager
+import android.hardware.SensorManager
 
-
-
-
+import android.view.OrientationEventListener
 
 
 
@@ -40,11 +42,25 @@ class MirrorService: Service() {
     private var mScreenSharing = false
     private var mMediaProjection: MediaProjection? = null
     private var mPresentationDialog: Presentation? = null
+    private var orientationEventListener: OrientationEventListener? = null
+
+    private var sf: Int = 1
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         generateForegroundNotification()
 
         Toast.makeText(this, "Started", Toast.LENGTH_SHORT).show()
+
+        val sharedPref = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE)
+        sf = if(sharedPref.getBoolean("crop", false)) 3 else 1
+
+        orientationEventListener =
+            object : OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
+                override fun onOrientationChanged(orientation: Int) {
+                    updateOrientation()
+                }
+            }
+        orientationEventListener?.enable()
 
         val subDisplay: Display? = getSubDisplay()
         if (subDisplay == null) {
@@ -86,13 +102,18 @@ class MirrorService: Service() {
                 intent.extras?.getParcelable("data")!!
             )
 
-            val sharedPref = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE)
             val surfaceView = mPresentationDialog!!.findViewById<TextureView>(R.id.surfaceView)
 
-            val sf = if(sharedPref.getBoolean("crop", false)) 3 else 1
+            val windowService = getSystemService(WINDOW_SERVICE) as WindowManager
+            val currentRotation = windowService.defaultDisplay.rotation
 
-            surfaceView.scaleY = 1F * sf
-            surfaceView.scaleX = 1F * sf
+            updateOrientation()
+
+            val orientationType = if(currentRotation == Surface.ROTATION_0 || currentRotation == Surface.ROTATION_180) Configuration.ORIENTATION_PORTRAIT else Configuration.ORIENTATION_LANDSCAPE
+
+            val baseScale = if(orientationType == Configuration.ORIENTATION_PORTRAIT) 1F else 0.5F
+
+            setScale(surfaceView, baseScale * sf, baseScale * sf)
 
             mMediaProjection!!.createVirtualDisplay(
                 "cover",
@@ -103,11 +124,52 @@ class MirrorService: Service() {
                 Surface(surfaceView.surfaceTexture),
                 null,
                 null
-            )
-        }, 500)
+            ) }, 500)
 
         // If we get killed, after returning from here, restart
         return START_STICKY
+    }
+
+    fun setScale(surfaceView: TextureView, x: Float, y: Float){
+        val scaleX = x
+        val scaleY = y
+
+        val pivotPointX: Float = 512 / 2F
+        val pivotPointY: Float = 260 / 2F
+
+        val matrix = Matrix()
+        matrix.setScale(scaleX, scaleY, pivotPointX, pivotPointY)
+
+        surfaceView.setTransform(matrix)
+    }
+
+    fun updateOrientation(){
+        val windowService = getSystemService(WINDOW_SERVICE) as WindowManager
+        Log.d("gdsgsdg", windowService.defaultDisplay.orientation.toString())
+        Log.d("gdsgsdg", windowService.defaultDisplay.rotation.toString())
+
+        when(windowService.defaultDisplay.rotation){
+            Surface.ROTATION_0 -> {
+                mPresentationDialog?.findViewById<TextureView>(R.id.surfaceView)?.rotation = 180F
+
+                setScale(mPresentationDialog!!.findViewById(R.id.surfaceView), 1F * sf, 1F * sf)
+            }
+            Surface.ROTATION_90 -> {
+                mPresentationDialog?.findViewById<TextureView>(R.id.surfaceView)?.rotation = 90F
+
+                setScale(mPresentationDialog!!.findViewById(R.id.surfaceView), 0.5F * sf, 0.5F * sf)
+            }
+            Surface.ROTATION_180 -> {
+                mPresentationDialog?.findViewById<TextureView>(R.id.surfaceView)?.rotation = 0F
+
+                setScale(mPresentationDialog!!.findViewById(R.id.surfaceView), 1F * sf, 1F * sf)
+            }
+            Surface.ROTATION_270 -> {
+                mPresentationDialog?.findViewById<TextureView>(R.id.surfaceView)?.rotation = 270F
+
+                setScale(mPresentationDialog!!.findViewById(R.id.surfaceView), 0.5F * sf, 0.5F * sf)
+            }
+        }
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -118,6 +180,7 @@ class MirrorService: Service() {
     override fun onDestroy() {
         mMediaProjection?.stop()
         mPresentationDialog?.cancel()
+        orientationEventListener?.disable()
         Toast.makeText(this, "Stopped", Toast.LENGTH_SHORT).show()
     }
 
@@ -147,7 +210,7 @@ class MirrorService: Service() {
         }
         assert(mNotificationManager != null)
         mNotificationManager?.createNotificationChannelGroup(
-            NotificationChannelGroup("chats_group", "Chats")
+            NotificationChannelGroup("mirror_service", "Mirror service")
         )
         val notificationChannel =
             NotificationChannel("service_channel", "Service Notifications",
