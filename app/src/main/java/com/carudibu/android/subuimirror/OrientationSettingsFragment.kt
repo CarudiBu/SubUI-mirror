@@ -2,6 +2,7 @@ package com.carudibu.android.subuimirror
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -15,8 +16,7 @@ class OrientationSettingsFragment: DialogFragment(R.layout.fragment_orientation_
 
         val sharedPref = requireActivity().getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE)
 
-        val portrait: Spinner? = view.findViewById(R.id.portrait)
-        portrait?.setSelection(sharedPref.getInt("portrait", 0))
+        val portrait: Spinner = view.findViewById(R.id.portrait)
 
         ArrayAdapter.createFromResource(
             requireContext(),
@@ -24,11 +24,12 @@ class OrientationSettingsFragment: DialogFragment(R.layout.fragment_orientation_
             android.R.layout.simple_spinner_item
         ).also { adapter ->
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            portrait?.adapter = adapter
+            portrait.adapter = adapter
         }
 
-        val landscape: Spinner? = view.findViewById(R.id.landscape)
-        portrait?.setSelection(sharedPref.getInt("landscape", 0))
+        portrait.setSelection(sharedPref.getInt("portrait", 0))
+
+        val landscape: Spinner = view.findViewById(R.id.landscape)
 
         ArrayAdapter.createFromResource(
             requireContext(),
@@ -36,15 +37,21 @@ class OrientationSettingsFragment: DialogFragment(R.layout.fragment_orientation_
             android.R.layout.simple_spinner_item
         ).also { adapter ->
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            landscape?.adapter = adapter
+            landscape.adapter = adapter
         }
+
+        landscape.setSelection(sharedPref.getInt("landscape", 0))
 
         view.findViewById<Button>(R.id.ok).setOnClickListener {
-            with (sharedPref.edit()) {
-                portrait?.selectedItemPosition?.let { it1 -> putInt("portrait", it1) }
-                landscape?.selectedItemPosition?.let { it1 -> putInt("landscape", it1) }
-                apply()
-            }
+            val editPrefs = sharedPref.edit()
+            editPrefs.putInt("portrait", portrait!!.selectedItemPosition)
+            editPrefs.putInt("landscape", landscape!!.selectedItemPosition)
+            editPrefs.apply()
+            dismiss()
+        }
+
+        view.findViewById<Button>(R.id.cancel).setOnClickListener {
+            dismiss()
         }
 
     }

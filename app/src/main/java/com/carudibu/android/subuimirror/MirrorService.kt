@@ -145,29 +145,43 @@ class MirrorService: Service() {
 
     fun updateOrientation(){
         val windowService = getSystemService(WINDOW_SERVICE) as WindowManager
-        Log.d("gdsgsdg", windowService.defaultDisplay.orientation.toString())
-        Log.d("gdsgsdg", windowService.defaultDisplay.rotation.toString())
 
         when(windowService.defaultDisplay.rotation){
             Surface.ROTATION_0 -> {
-                mPresentationDialog?.findViewById<TextureView>(R.id.surfaceView)?.rotation = 180F
+                val sharedPref = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE)
+                val rotation = if(sharedPref.getInt("portrait", 0) == 0) 180F else 90F
+                val baseScale = 1F
 
-                setScale(mPresentationDialog!!.findViewById(R.id.surfaceView), 1F * sf, 1F * sf)
+                mPresentationDialog?.findViewById<TextureView>(R.id.surfaceView)?.rotation = rotation
+
+                setScale(mPresentationDialog!!.findViewById(R.id.surfaceView), baseScale * sf, baseScale * sf)
             }
             Surface.ROTATION_90 -> {
-                mPresentationDialog?.findViewById<TextureView>(R.id.surfaceView)?.rotation = 90F
+                val sharedPref = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE)
+                val rotation = if(sharedPref.getInt("landscape", 0) == 0) 90F else 180F
+                val baseScale = if(sharedPref.getInt("landscape", 0) == 0) 0.5F else 1F
 
-                setScale(mPresentationDialog!!.findViewById(R.id.surfaceView), 0.5F * sf, 0.5F * sf)
+                mPresentationDialog?.findViewById<TextureView>(R.id.surfaceView)?.rotation = rotation
+
+                setScale(mPresentationDialog!!.findViewById(R.id.surfaceView), baseScale * sf, baseScale * sf)
             }
             Surface.ROTATION_180 -> {
-                mPresentationDialog?.findViewById<TextureView>(R.id.surfaceView)?.rotation = 0F
+                val sharedPref = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE)
+                val rotation = if(sharedPref.getInt("portrait", 0) == 0) 0F else 90F
+                val baseScale = 1F
 
-                setScale(mPresentationDialog!!.findViewById(R.id.surfaceView), 1F * sf, 1F * sf)
+                mPresentationDialog?.findViewById<TextureView>(R.id.surfaceView)?.rotation = rotation
+
+                setScale(mPresentationDialog!!.findViewById(R.id.surfaceView), baseScale * sf, baseScale * sf)
             }
             Surface.ROTATION_270 -> {
-                mPresentationDialog?.findViewById<TextureView>(R.id.surfaceView)?.rotation = 270F
+                val sharedPref = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE)
+                val rotation = if(sharedPref.getInt("landscape", 0) == 0) 270F else 0F
+                val baseScale = if(sharedPref.getInt("landscape", 0) == 0) 0.5F else 1F
 
-                setScale(mPresentationDialog!!.findViewById(R.id.surfaceView), 0.5F * sf, 0.5F * sf)
+                mPresentationDialog?.findViewById<TextureView>(R.id.surfaceView)?.rotation = rotation
+
+                setScale(mPresentationDialog!!.findViewById(R.id.surfaceView), baseScale * sf, baseScale * sf)
             }
         }
     }
