@@ -2,42 +2,29 @@ package com.carudibu.android.subuimirror
 
 import android.app.*
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import android.graphics.Point
 import android.hardware.display.DisplayManager
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.*
-import android.os.Process.THREAD_PRIORITY_BACKGROUND
-import android.util.DisplayMetrics
 import android.util.Log
 import android.widget.Toast
-import androidx.core.content.ContextCompat.getSystemService
-import android.os.Build
 import android.view.*
 import androidx.core.app.NotificationCompat
 import java.lang.Exception
 import java.lang.reflect.Field
-import android.view.animation.Animation
 
-import android.view.animation.RotateAnimation
-import android.widget.FrameLayout
 import android.view.WindowManager
 import android.hardware.SensorManager
 
 import android.view.OrientationEventListener
 
-
-
-
 class MirrorService: Service() {
 
-    private var mScreenDensity = 0
     private var mProjectionManager: MediaProjectionManager? = null
     private var mScreenSharing = false
     private var mMediaProjection: MediaProjection? = null
@@ -131,14 +118,12 @@ class MirrorService: Service() {
     }
 
     fun setScale(surfaceView: TextureView, x: Float, y: Float){
-        val scaleX = x
-        val scaleY = y
 
         val pivotPointX: Float = 512 / 2F
         val pivotPointY: Float = 260 / 2F
 
         val matrix = Matrix()
-        matrix.setScale(scaleX, scaleY, pivotPointX, pivotPointY)
+        matrix.setScale(x, y, pivotPointX, pivotPointY)
 
         surfaceView.setTransform(matrix)
     }
@@ -203,9 +188,6 @@ class MirrorService: Service() {
             (getSystemService("display") as DisplayManager).getDisplays("com.samsung.android.hardware.display.category.BUILTIN")
         Log.d("subuimirror", "builtInDisplays size : " + displays.size)
         val display: Display? = if (displays.size > 1) displays[1] else null
-        if (display != null) {
-            //display.getRealSize(this.mAttachedLcdSize)
-        }
         return display
     }
 

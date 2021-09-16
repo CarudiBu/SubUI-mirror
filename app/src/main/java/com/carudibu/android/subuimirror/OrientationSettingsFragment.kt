@@ -2,9 +2,7 @@ package com.carudibu.android.subuimirror
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Spinner
@@ -44,8 +42,8 @@ class OrientationSettingsFragment: DialogFragment(R.layout.fragment_orientation_
 
         view.findViewById<Button>(R.id.ok).setOnClickListener {
             val editPrefs = sharedPref.edit()
-            editPrefs.putInt("portrait", portrait!!.selectedItemPosition)
-            editPrefs.putInt("landscape", landscape!!.selectedItemPosition)
+            editPrefs.putInt("portrait", portrait.selectedItemPosition)
+            editPrefs.putInt("landscape", landscape.selectedItemPosition)
             editPrefs.apply()
             dismiss()
         }

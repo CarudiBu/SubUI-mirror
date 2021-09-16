@@ -29,8 +29,6 @@ class MainActivity : AppCompatActivity() {
             stopService(serviceIntent)
         }
 
-        // TODO: FIX ROTATION ISSUES (COVER DOESN'T BEHAVE AS EXPECTED WHEN PHONE ROTATES, GIVE OPTION?)
-
         findViewById<SwitchMaterial>(R.id.crop).setOnCheckedChangeListener { buttonView, isChecked ->
             val sharedPref = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE)
             with (sharedPref.edit()) {
@@ -50,7 +48,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
         if (resultCode != RESULT_OK) {
-            Toast.makeText(this, "User denied screen sharing permission", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Screen sharing denied! Please try again.", Toast.LENGTH_SHORT).show()
             return
         }
 
